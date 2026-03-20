@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barber Booking Calendar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero">
+        <p class="eyebrow">Barber Booking</p>
+        <h1>Simple weekly booking calendar</h1>
+        <p class="hero-copy">
+          This example generates bookable time slots for today through the next
+          week so a customer can quickly see what is still available.
+        </p>
+      </section>
+
+      <section class="panel controls">
+        <div>
+          <h2>Availability window</h2>
+          <p>
+            Use the buttons below to rebuild the calendar starting from today.
+          </p>
+        </div>
+        <div class="control-actions">
+          <button id="generate-calendar" type="button">Generate next 7 days</button>
+          <button id="reset-bookings" type="button" class="secondary">
+            Reset bookings
+          </button>
+        </div>
+      </section>
+
+      <section class="panel selection-panel">
+        <h2>Selected booking</h2>
+        <p id="selected-booking">No appointment selected yet.</p>
+      </section>
+
+      <section>
+        <div class="calendar-header">
+          <h2>Upcoming appointments</h2>
+          <span class="hint">Tap any available slot to book it.</span>
+        </div>
+        <div id="calendar" class="calendar-grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

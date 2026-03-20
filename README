@@ -1,1 +1,43 @@
-Comencem x aquesta file
+# Barber Booking Calendar
+
+This repository now includes a lightweight front-end example that generates a
+bookable calendar for **today through the next 7 days**.
+
+## What it does
+
+- Builds the next 7 calendar days automatically in the browser.
+- Shows a fixed set of appointment slots for each day.
+- Lets a user click an available slot to mark it as booked.
+- Shows the currently selected booking at the top of the page.
+- Lets you reset all bookings and regenerate the week.
+
+## Files
+
+- `index.html` – page structure.
+- `styles.css` – layout and styling for the booking calendar.
+- `app.js` – booking logic and calendar generation.
+
+## Run it locally
+
+Because this is plain HTML, CSS, and JavaScript, the easiest option is:
+
+1. Open `index.html` directly in your browser, or
+2. Run a simple local server:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then visit `http://localhost:8000`.
+
+## How to extend it
+
+If you want to connect this to real booking data later, the easiest upgrade path
+is to replace the in-memory `state.bookings` object in `app.js` with data from:
+
+- an API,
+- a database-backed admin panel, or
+- a calendar provider such as Google Calendar.
+
+For now, this gives you the quickest possible working example to verify that a
+user can see open appointments through next week and make a booking selection.
