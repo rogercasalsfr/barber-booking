@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barber Booking Calendar</title>
+    <meta
+      name="description"
+      content="Interactive barber booking calendar ready to publish with GitHub Pages."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero card">
+        <div>
+          <p class="eyebrow">GitHub Pages ready</p>
+          <h1>Interactive barber booking calendar</h1>
+          <p class="hero-copy">
+            Pick a day, choose a time, and save the reservation directly in the
+            browser. This is plain HTML, CSS, and JavaScript, so it can be
+            published on GitHub Pages without a backend.
+          </p>
+        </div>
+        <div class="hero-summary">
+          <div class="summary-item">
+            <span class="summary-number">14</span>
+            <span class="summary-label">Days open for booking</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-number">7</span>
+            <span class="summary-label">Slots each day</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="layout-grid">
+        <section class="card calendar-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Calendar</p>
+              <h2 id="calendar-title">Loading…</h2>
+            </div>
+            <div class="month-actions">
+              <button id="previous-month" type="button" aria-label="Previous month">
+                ←
+              </button>
+              <button id="next-month" type="button" aria-label="Next month">→</button>
+            </div>
+          </div>
+
+          <div class="weekday-row" aria-hidden="true">
+            <span>Sun</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+          </div>
+
+          <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+
+          <div class="legend">
+            <span><i class="legend-dot available"></i>Available to book</span>
+            <span><i class="legend-dot selected"></i>Selected day</span>
+            <span><i class="legend-dot reserved"></i>Reserved slot on that day</span>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card details-panel">
+            <p class="panel-kicker">Reservation</p>
+            <h2 id="selected-date-title">Select a date</h2>
+            <p id="selected-date-copy" class="muted">
+              Choose any open day in the calendar to see the available times.
+            </p>
+            <div id="time-slots" class="time-slots"></div>
+          </section>
+
+          <section class="card booking-panel">
+            <p class="panel-kicker">Saved booking</p>
+            <h2>Your appointment</h2>
+            <p id="booking-summary" class="muted">No reservation saved yet.</p>
+            <div class="booking-actions">
+              <button id="clear-booking" type="button" class="secondary">
+                Clear reservation
+              </button>
+              <button id="reset-all" type="button" class="danger">
+                Reset all saved slots
+              </button>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
