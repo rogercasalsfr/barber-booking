@@ -1,40 +1,43 @@
-const DAYS_TO_SHOW = 7;
+const BOOKING_WINDOW_DAYS = 14;
+const STORAGE_KEY = "barber-booking-calendar-state";
 const TIME_SLOTS = [
-  "09:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "01:00 PM",
-  "02:00 PM",
-  "03:00 PM",
-  "04:00 PM",
+  "09:00",
+  "10:00",
+  "11:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
 ];
 
+const today = startOfDay(new Date());
+const bookingEndDate = addDays(today, BOOKING_WINDOW_DAYS - 1);
+
 const state = {
-  selectedBooking: null,
-  bookings: {},
+  currentMonth: new Date(today.getFullYear(), today.getMonth(), 1),
+  selectedDateKey: formatDateKey(today),
+  bookings: loadBookings(),
 };
 
-const calendarElement = document.getElementById("calendar");
-const selectedBookingElement = document.getElementById("selected-booking");
-const generateCalendarButton = document.getElementById("generate-calendar");
-const resetBookingsButton = document.getElementById("reset-bookings");
+const calendarTitle = document.getElementById("calendar-title");
+const calendarGrid = document.getElementById("calendar-grid");
+const selectedDateTitle = document.getElementById("selected-date-title");
+const selectedDateCopy = document.getElementById("selected-date-copy");
+const timeSlotsElement = document.getElementById("time-slots");
+const bookingSummary = document.getElementById("booking-summary");
+const previousMonthButton = document.getElementById("previous-month");
+const nextMonthButton = document.getElementById("next-month");
+const clearBookingButton = document.getElementById("clear-booking");
+const resetAllButton = document.getElementById("reset-all");
 
-function generateUpcomingDays(startDate = new Date(), numberOfDays = DAYS_TO_SHOW) {
-  return Array.from({ length: numberOfDays }, (_, offset) => {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + offset);
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
 
-    return {
-      key: formatDateKey(date),
-      dayLabel: new Intl.DateTimeFormat("en-US", {
-        weekday: "long",
-      }).format(date),
-      dateLabel: new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-      }).format(date),
-    };
-  });
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
 }
 
 function formatDateKey(date) {
@@ -44,91 +47,200 @@ function formatDateKey(date) {
   return `${year}-${month}-${day}`;
 }
 
-function isBooked(dateKey, slot) {
-  return Boolean(state.bookings[dateKey]?.[slot]);
+function formatLongDate(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(date);
 }
 
-function setBooking(dateKey, slot) {
-  state.bookings[dateKey] = {
-    ...(state.bookings[dateKey] || {}),
-    [slot]: true,
-  };
-
-  state.selectedBooking = { dateKey, slot };
-  updateSelectedBooking();
+function formatMonthLabel(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
 }
 
-function updateSelectedBooking() {
-  if (!state.selectedBooking) {
-    selectedBookingElement.textContent = "No appointment selected yet.";
-    return;
+function parseDateKey(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function loadBookings() {
+  const saved = window.localStorage.getItem(STORAGE_KEY);
+
+  if (!saved) {
+    return {};
   }
 
-  selectedBookingElement.textContent = `Booked ${state.selectedBooking.dateKey} at ${state.selectedBooking.slot}.`;
+  try {
+    return JSON.parse(saved);
+  } catch {
+    return {};
+  }
 }
 
-function renderCalendar(days = generateUpcomingDays()) {
-  calendarElement.innerHTML = "";
+function saveBookings() {
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.bookings));
+}
 
-  if (!days.length) {
-    calendarElement.innerHTML =
-      '<div class="empty-state">No dates available for booking.</div>';
-    return;
-  }
+function canBookDate(date) {
+  return startOfDay(date) >= today && startOfDay(date) <= bookingEndDate;
+}
 
-  days.forEach((day) => {
-    const card = document.createElement("article");
-    card.className = "day-card";
+function hasBookingOnDate(dateKey) {
+  return Boolean(state.bookings[dateKey] && Object.keys(state.bookings[dateKey]).length > 0);
+}
 
-    const slotsMarkup = TIME_SLOTS.map((slot) => {
-      const booked = isBooked(day.key, slot);
+function isSlotBooked(dateKey, time) {
+  return Boolean(state.bookings[dateKey]?.[time]);
+}
 
-      return `
-        <div class="slot-row ${booked ? "booked" : ""}">
-          <div>
-            <div class="slot-label">${slot}</div>
-            <div class="slot-meta">${booked ? "Already booked" : "Available now"}</div>
-          </div>
-          ${
-            booked
-              ? '<span class="booking-badge">Booked</span>'
-              : `<button class="slot-button" type="button" data-date="${day.key}" data-slot="${slot}">Book</button>`
-          }
-        </div>
-      `;
-    }).join("");
+function getMonthMatrix(monthDate) {
+  const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const startOffset = firstDay.getDay();
+  const firstVisibleDay = addDays(firstDay, -startOffset);
 
-    card.innerHTML = `
-      <div class="day-card-header">
-        <h3>${day.dayLabel}</h3>
-        <p>${day.dateLabel}</p>
-      </div>
-      <div class="slots">${slotsMarkup}</div>
+  return Array.from({ length: 42 }, (_, index) => addDays(firstVisibleDay, index));
+}
+
+function updateMonthButtons() {
+  const previousMonth = new Date(state.currentMonth.getFullYear(), state.currentMonth.getMonth() - 1, 1);
+  const nextMonth = new Date(state.currentMonth.getFullYear(), state.currentMonth.getMonth() + 1, 1);
+  previousMonthButton.disabled = previousMonth < new Date(today.getFullYear(), today.getMonth(), 1);
+  nextMonthButton.disabled = nextMonth > new Date(bookingEndDate.getFullYear(), bookingEndDate.getMonth(), 1);
+}
+
+function renderCalendar() {
+  calendarTitle.textContent = formatMonthLabel(state.currentMonth);
+  calendarGrid.innerHTML = "";
+  updateMonthButtons();
+
+  getMonthMatrix(state.currentMonth).forEach((date) => {
+    const dateKey = formatDateKey(date);
+    const isCurrentMonth = date.getMonth() === state.currentMonth.getMonth();
+    const open = canBookDate(date);
+    const selected = state.selectedDateKey === dateKey;
+    const booked = hasBookingOnDate(dateKey);
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = [
+      "calendar-day",
+      isCurrentMonth ? "" : "outside",
+      open ? "open" : "closed",
+      selected ? "selected" : "",
+      booked ? "has-booking" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    button.disabled = !open;
+    button.innerHTML = `
+      <strong>${date.getDate()}</strong>
+      <small>${open ? (booked ? "Reserved slot saved" : "Open for booking") : "Outside booking window"}</small>
+      <span class="status-pill ${open ? (booked ? "booked" : "available") : "closed"}">
+        ${open ? (booked ? "Booked" : "Available") : "Closed"}
+      </span>
     `;
 
-    calendarElement.appendChild(card);
-  });
+    if (open) {
+      button.addEventListener("click", () => {
+        state.selectedDateKey = dateKey;
+        renderAll();
+      });
+    }
 
-  calendarElement.querySelectorAll(".slot-button").forEach((button) => {
-    button.addEventListener("click", () => {
-      setBooking(button.dataset.date, button.dataset.slot);
-      renderCalendar(days);
-    });
+    calendarGrid.appendChild(button);
   });
 }
 
-function resetBookings() {
+function renderTimeSlots() {
+  const selectedDate = parseDateKey(state.selectedDateKey);
+  const selectedLabel = formatLongDate(selectedDate);
+
+  selectedDateTitle.textContent = selectedLabel;
+  selectedDateCopy.textContent = `Appointments are open from ${TIME_SLOTS[0]} to ${TIME_SLOTS[TIME_SLOTS.length - 1]}. Click a time to reserve it.`;
+  timeSlotsElement.innerHTML = "";
+
+  TIME_SLOTS.forEach((time) => {
+    const button = document.createElement("button");
+    const booked = isSlotBooked(state.selectedDateKey, time);
+    const active = state.bookings[state.selectedDateKey]?.[time] === true;
+
+    button.type = "button";
+    button.className = ["time-slot", booked ? "booked" : "", active ? "active" : ""]
+      .filter(Boolean)
+      .join(" ");
+    button.disabled = booked;
+    button.textContent = booked ? `${time} — Reserved` : `${time} — Reserve`;
+
+    if (!booked) {
+      button.addEventListener("click", () => reserveSlot(state.selectedDateKey, time));
+    }
+
+    timeSlotsElement.appendChild(button);
+  });
+}
+
+function reserveSlot(dateKey, time) {
+  state.bookings[dateKey] = {
+    ...(state.bookings[dateKey] || {}),
+    [time]: true,
+  };
+
+  saveBookings();
+  renderAll();
+}
+
+function clearSelectedDateBookings() {
+  delete state.bookings[state.selectedDateKey];
+  saveBookings();
+  renderAll();
+}
+
+function resetAllBookings() {
   state.bookings = {};
-  state.selectedBooking = null;
-  updateSelectedBooking();
-  renderCalendar();
+  saveBookings();
+  renderAll();
 }
 
-generateCalendarButton.addEventListener("click", () => {
-  renderCalendar(generateUpcomingDays());
+function renderBookingSummary() {
+  const bookedTimes = Object.entries(state.bookings)
+    .flatMap(([dateKey, slots]) => Object.keys(slots).map((time) => ({ dateKey, time })))
+    .sort((a, b) => `${a.dateKey}-${a.time}`.localeCompare(`${b.dateKey}-${b.time}`));
+
+  if (!bookedTimes.length) {
+    bookingSummary.textContent = "No reservation saved yet.";
+    clearBookingButton.disabled = true;
+    resetAllButton.disabled = true;
+    return;
+  }
+
+  const firstBooking = bookedTimes[0];
+  bookingSummary.textContent = `${formatLongDate(parseDateKey(firstBooking.dateKey))} at ${firstBooking.time}. ${bookedTimes.length > 1 ? `(${bookedTimes.length} total reserved slots)` : ""}`.trim();
+  clearBookingButton.disabled = !hasBookingOnDate(state.selectedDateKey);
+  resetAllButton.disabled = false;
+}
+
+function renderAll() {
+  renderCalendar();
+  renderTimeSlots();
+  renderBookingSummary();
+}
+
+previousMonthButton.addEventListener("click", () => {
+  state.currentMonth = new Date(state.currentMonth.getFullYear(), state.currentMonth.getMonth() - 1, 1);
+  renderCalendar();
 });
 
-resetBookingsButton.addEventListener("click", resetBookings);
+nextMonthButton.addEventListener("click", () => {
+  state.currentMonth = new Date(state.currentMonth.getFullYear(), state.currentMonth.getMonth() + 1, 1);
+  renderCalendar();
+});
 
-renderCalendar();
-updateSelectedBooking();
+clearBookingButton.addEventListener("click", clearSelectedDateBookings);
+resetAllButton.addEventListener("click", resetAllBookings);
+
+renderAll();
