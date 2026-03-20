@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barber Booking Calendar</title>
+    <meta
+      name="description"
+      content="Interactive barber booking calendar ready to publish with GitHub Pages."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero card">
+        <div>
+          <p class="eyebrow">GitHub Pages ready</p>
+          <h1>Interactive barber booking calendar</h1>
+          <p class="hero-copy">
+            Customers can choose a day, select a time, enter their name and
+            mobile phone, and save a reservation. In live mode the page syncs
+            shared reservations from Supabase so everyone sees updates.
+          </p>
+        </div>
+        <div class="hero-summary">
+          <div class="summary-item">
+            <span class="summary-number">14</span>
+            <span class="summary-label">Days open for booking</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-number">Live</span>
+            <span class="summary-label">Remote sync supported</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="layout-grid">
+        <section class="card calendar-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Calendar</p>
+              <h2 id="calendar-title">Loading…</h2>
+              <p id="sync-status" class="muted status-copy">Checking data source…</p>
+            </div>
+            <div class="month-actions">
+              <button id="previous-month" type="button" aria-label="Previous month">
+                ←
+              </button>
+              <button id="next-month" type="button" aria-label="Next month">→</button>
+            </div>
+          </div>
+
+          <div class="weekday-row" aria-hidden="true">
+            <span>Sun</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+          </div>
+
+          <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+
+          <div class="legend">
+            <span><i class="legend-dot available"></i>Available to book</span>
+            <span><i class="legend-dot selected"></i>Selected day</span>
+            <span><i class="legend-dot reserved"></i>Reserved slot on that day</span>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card details-panel">
+            <p class="panel-kicker">Reservation</p>
+            <h2 id="selected-date-title">Select a date</h2>
+            <p id="selected-date-copy" class="muted">
+              Choose any open day in the calendar to see the available times.
+            </p>
+            <div id="time-slots" class="time-slots"></div>
+          </section>
+
+          <section class="card booking-panel">
+            <p class="panel-kicker">Customer details</p>
+            <h2>Finish reservation</h2>
+            <p id="selected-slot-summary" class="muted">
+              First choose a date and time slot.
+            </p>
+
+            <form id="booking-form" class="booking-form">
+              <label>
+                <span>Name</span>
+                <input id="customer-name" name="customerName" type="text" placeholder="Jane Doe" required />
+              </label>
+              <label>
+                <span>Mobile phone</span>
+                <input
+                  id="customer-phone"
+                  name="customerPhone"
+                  type="tel"
+                  inputmode="tel"
+                  placeholder="+1 555 123 4567"
+                  required
+                />
+              </label>
+              <button id="reserve-button" type="submit">Reserve selected time</button>
+            </form>
+
+            <p id="booking-feedback" class="feedback muted">No reservation saved yet.</p>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="booking-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,1 +1,87 @@
-Comencem x aquesta file
+# Barber Booking Calendar
+
+This project now supports **real shared reservations** when you connect it to
+Supabase, while still falling back to browser-only demo storage if you leave the
+config empty.
+
+## What changed
+
+- Customers now choose a day and a time first.
+- The page asks for **name** and **mobile phone** before saving a reservation.
+- In **live mode**, bookings are loaded from Supabase and auto-refreshed on a timer.
+- In **demo mode**, bookings are stored only in the current browser using `localStorage`.
+
+## Files
+
+- `index.html` – calendar UI plus booking form.
+- `styles.css` – responsive calendar and form styling.
+- `app.js` – reservation logic, validation, polling, and local/demo fallback.
+- `booking-config.js` – place your public Supabase project values here.
+- `.nojekyll` – keeps GitHub Pages serving the site as a plain static app.
+
+## 1. Keep demo mode or enable live mode
+
+If you do **nothing**, the site keeps working in demo mode.
+
+If you want **real shared reservations**, edit `booking-config.js` and fill in:
+
+```js
+window.BOOKING_CONFIG = {
+  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
+  supabaseAnonKey: "YOUR_PUBLIC_ANON_KEY",
+  bookingsTable: "bookings",
+  pollIntervalMs: 15000,
+};
+```
+
+## 2. Create the Supabase table
+
+Run this SQL in Supabase:
+
+```sql
+create table if not exists public.bookings (
+  id bigint generated always as identity primary key,
+  booking_date date not null,
+  booking_time text not null,
+  customer_name text not null,
+  customer_phone text not null,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists bookings_unique_slot
+  on public.bookings (booking_date, booking_time);
+```
+
+## 3. Add very simple policies
+
+For a quick public demo, enable RLS and allow reads/inserts:
+
+```sql
+alter table public.bookings enable row level security;
+
+create policy "Public can read bookings"
+  on public.bookings
+  for select
+  using (true);
+
+create policy "Public can create bookings"
+  on public.bookings
+  for insert
+  with check (
+    char_length(customer_name) between 2 and 80
+    and char_length(customer_phone) between 7 and 20
+  );
+```
+
+## 4. Publish on GitHub Pages
+
+1. Push the updated files to GitHub.
+2. In **Settings → Pages**, keep **Deploy from a branch**.
+3. Use your branch and the **root** folder.
+4. Save and wait for GitHub Pages to redeploy.
+
+## Notes
+
+- GitHub Pages alone cannot store shared bookings; that is why Supabase is used for real reservations.
+- The current version keeps the code simple on purpose.
+- For production, add admin tools, stronger validation, and bot protection.
