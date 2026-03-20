@@ -1,0 +1,224 @@
+:root {
+  color-scheme: light;
+  --bg: #f6f3ee;
+  --panel: #ffffff;
+  --panel-border: #e5ddd0;
+  --text: #2a2118;
+  --muted: #6d5e4d;
+  --accent: #9a5f2d;
+  --accent-dark: #7c481c;
+  --success-bg: #eef8f1;
+  --success-text: #24633b;
+  --shadow: 0 18px 45px rgba(42, 33, 24, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #f8f5ef 0%, #f1ebe1 100%);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.page-shell {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+.hero {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.hero h1,
+.panel h2,
+.calendar-header h2,
+.day-card h3 {
+  margin: 0;
+}
+
+.hero-copy,
+.panel p,
+.hint,
+.slot-meta {
+  color: var(--muted);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.control-actions button,
+.slot-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.8rem 1.1rem;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+}
+
+.control-actions button:hover,
+.slot-button:hover:not(:disabled) {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.control-actions .secondary {
+  background: #ede4d9;
+  color: var(--text);
+}
+
+.selection-panel {
+  background: #2a2118;
+  color: #fff9f3;
+}
+
+.selection-panel p {
+  color: #ead8c5;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
+  align-items: end;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.day-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.day-card-header {
+  margin-bottom: 0.85rem;
+}
+
+.day-card-header p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.slot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #f0e9df;
+  border-radius: 16px;
+  padding: 0.75rem;
+}
+
+.slot-row.booked {
+  background: var(--success-bg);
+  border-color: #cfe8d7;
+}
+
+.slot-label {
+  font-weight: 700;
+}
+
+.slot-button:disabled {
+  background: #c1b29f;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.booking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #efe4d4;
+  color: var(--accent-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.slot-row.booked .booking-badge {
+  background: #d8efdf;
+  color: var(--success-text);
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 2rem;
+  border-radius: 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px dashed var(--panel-border);
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .page-shell {
+    width: min(100% - 1rem, 1100px);
+    padding-top: 1.5rem;
+  }
+
+  .calendar-header,
+  .controls {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .slot-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
