@@ -17,9 +17,9 @@
           <p class="eyebrow">GitHub Pages ready</p>
           <h1>Interactive barber booking calendar</h1>
           <p class="hero-copy">
-            Pick a day, choose a time, and save the reservation directly in the
-            browser. This is plain HTML, CSS, and JavaScript, so it can be
-            published on GitHub Pages without a backend.
+            Customers can choose a day, select a time, enter their name and
+            mobile phone, and save a reservation. In live mode the page syncs
+            shared reservations from Supabase so everyone sees updates.
           </p>
         </div>
         <div class="hero-summary">
@@ -28,8 +28,8 @@
             <span class="summary-label">Days open for booking</span>
           </div>
           <div class="summary-item">
-            <span class="summary-number">7</span>
-            <span class="summary-label">Slots each day</span>
+            <span class="summary-number">Live</span>
+            <span class="summary-label">Remote sync supported</span>
           </div>
         </div>
       </section>
@@ -40,6 +40,7 @@
             <div>
               <p class="panel-kicker">Calendar</p>
               <h2 id="calendar-title">Loading…</h2>
+              <p id="sync-status" class="muted status-copy">Checking data source…</p>
             </div>
             <div class="month-actions">
               <button id="previous-month" type="button" aria-label="Previous month">
@@ -79,22 +80,38 @@
           </section>
 
           <section class="card booking-panel">
-            <p class="panel-kicker">Saved booking</p>
-            <h2>Your appointment</h2>
-            <p id="booking-summary" class="muted">No reservation saved yet.</p>
-            <div class="booking-actions">
-              <button id="clear-booking" type="button" class="secondary">
-                Clear reservation
-              </button>
-              <button id="reset-all" type="button" class="danger">
-                Reset all saved slots
-              </button>
-            </div>
+            <p class="panel-kicker">Customer details</p>
+            <h2>Finish reservation</h2>
+            <p id="selected-slot-summary" class="muted">
+              First choose a date and time slot.
+            </p>
+
+            <form id="booking-form" class="booking-form">
+              <label>
+                <span>Name</span>
+                <input id="customer-name" name="customerName" type="text" placeholder="Jane Doe" required />
+              </label>
+              <label>
+                <span>Mobile phone</span>
+                <input
+                  id="customer-phone"
+                  name="customerPhone"
+                  type="tel"
+                  inputmode="tel"
+                  placeholder="+1 555 123 4567"
+                  required
+                />
+              </label>
+              <button id="reserve-button" type="submit">Reserve selected time</button>
+            </form>
+
+            <p id="booking-feedback" class="feedback muted">No reservation saved yet.</p>
           </section>
         </aside>
       </section>
     </main>
 
+    <script src="booking-config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

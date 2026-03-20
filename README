@@ -1,52 +1,87 @@
 # Barber Booking Calendar
 
-This repository now contains a **GitHub Pages-friendly interactive booking webpage**.
-It is built with plain HTML, CSS, and JavaScript so you can publish it without a
-backend and still click dates and reserve time slots in the browser.
+This project now supports **real shared reservations** when you connect it to
+Supabase, while still falling back to browser-only demo storage if you leave the
+config empty.
 
-## What the page does
+## What changed
 
-- Shows an interactive calendar grid instead of a simple list.
-- Opens booking for the next **14 days** starting from today.
-- Lets the customer click a day, then click a time slot to reserve it.
-- Saves reservations in `localStorage`, so refreshes keep the bookings.
-- Lets you clear bookings for the selected day or reset everything.
+- Customers now choose a day and a time first.
+- The page asks for **name** and **mobile phone** before saving a reservation.
+- In **live mode**, bookings are loaded from Supabase and auto-refreshed on a timer.
+- In **demo mode**, bookings are stored only in the current browser using `localStorage`.
 
 ## Files
 
-- `index.html` – page markup for the GitHub Pages site.
-- `styles.css` – layout, calendar, sidebar, and responsive styles.
-- `app.js` – calendar generation, month navigation, slot reservation logic, and persistence.
-- `.nojekyll` – tells GitHub Pages to serve the site as a plain static app.
+- `index.html` – calendar UI plus booking form.
+- `styles.css` – responsive calendar and form styling.
+- `app.js` – reservation logic, validation, polling, and local/demo fallback.
+- `booking-config.js` – place your public Supabase project values here.
+- `.nojekyll` – keeps GitHub Pages serving the site as a plain static app.
 
-## Run locally
+## 1. Keep demo mode or enable live mode
 
-The easiest local preview is:
+If you do **nothing**, the site keeps working in demo mode.
 
-```bash
-python3 -m http.server 8000
+If you want **real shared reservations**, edit `booking-config.js` and fill in:
+
+```js
+window.BOOKING_CONFIG = {
+  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
+  supabaseAnonKey: "YOUR_PUBLIC_ANON_KEY",
+  bookingsTable: "bookings",
+  pollIntervalMs: 15000,
+};
 ```
 
-Then open:
+## 2. Create the Supabase table
 
-- `http://localhost:8000`
+Run this SQL in Supabase:
 
-## Publish with GitHub Pages
+```sql
+create table if not exists public.bookings (
+  id bigint generated always as identity primary key,
+  booking_date date not null,
+  booking_time text not null,
+  customer_name text not null,
+  customer_phone text not null,
+  created_at timestamptz not null default now()
+);
 
-1. Push this repository to GitHub.
-2. Open **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select your branch and the **root** folder.
-5. Save.
+create unique index if not exists bookings_unique_slot
+  on public.bookings (booking_date, booking_time);
+```
 
-GitHub Pages will publish `index.html` as the website entry point.
+## 3. Add very simple policies
 
-## Easy future upgrades
+For a quick public demo, enable RLS and allow reads/inserts:
 
-When you want real appointments instead of browser-only storage, replace the
-`localStorage` logic in `app.js` with:
+```sql
+alter table public.bookings enable row level security;
 
-- a small API,
-- Firebase / Supabase,
-- Google Calendar integration, or
-- your own backend.
+create policy "Public can read bookings"
+  on public.bookings
+  for select
+  using (true);
+
+create policy "Public can create bookings"
+  on public.bookings
+  for insert
+  with check (
+    char_length(customer_name) between 2 and 80
+    and char_length(customer_phone) between 7 and 20
+  );
+```
+
+## 4. Publish on GitHub Pages
+
+1. Push the updated files to GitHub.
+2. In **Settings → Pages**, keep **Deploy from a branch**.
+3. Use your branch and the **root** folder.
+4. Save and wait for GitHub Pages to redeploy.
+
+## Notes
+
+- GitHub Pages alone cannot store shared bookings; that is why Supabase is used for real reservations.
+- The current version keeps the code simple on purpose.
+- For production, add admin tools, stronger validation, and bot protection.

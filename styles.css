@@ -1,5 +1,4 @@
 :root {
-  --bg: #f5efe7;
   --card: #fffdf9;
   --border: #eadfce;
   --text: #23180f;
@@ -26,7 +25,8 @@ body {
   background: linear-gradient(180deg, #f7f2eb 0%, #efe6da 100%);
 }
 
-button {
+button,
+input {
   font: inherit;
 }
 
@@ -38,7 +38,7 @@ button {
 
 .layout-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.95fr);
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
   gap: 20px;
 }
 
@@ -76,7 +76,9 @@ button {
 .hero-copy,
 .muted,
 .legend,
-.weekday-row {
+.weekday-row,
+.status-copy,
+.feedback {
   color: var(--muted);
 }
 
@@ -109,7 +111,6 @@ button {
 
 .panel-header,
 .month-actions,
-.booking-actions,
 .legend {
   display: flex;
 }
@@ -121,14 +122,13 @@ button {
   align-items: center;
 }
 
-.month-actions,
-.booking-actions {
+.month-actions {
   gap: 10px;
 }
 
 .month-actions button,
 .time-slot,
-.booking-actions button {
+#reserve-button {
   border: 0;
   border-radius: 16px;
   padding: 12px 16px;
@@ -145,13 +145,13 @@ button {
 
 .month-actions button:hover:not(:disabled),
 .time-slot:hover:not(:disabled),
-.booking-actions button:hover:not(:disabled) {
+#reserve-button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
 .month-actions button:disabled,
 .time-slot:disabled,
-.booking-actions button:disabled {
+#reserve-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
@@ -191,10 +191,6 @@ button {
 
 .calendar-day small {
   color: var(--muted);
-}
-
-.calendar-day.open {
-  background: #fffaf3;
 }
 
 .calendar-day.selected {
@@ -266,29 +262,44 @@ button {
   color: #5f5145;
 }
 
-.time-slot.active {
+.time-slot.selected-slot {
   background: var(--success);
 }
 
-.time-slot.empty-state {
-  background: #efe7db;
-  color: var(--muted);
-  cursor: default;
+.booking-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
 }
 
-.booking-actions button {
-  flex: 1;
-  margin-top: 12px;
-  color: white;
+.booking-form label {
+  display: grid;
+  gap: 6px;
   font-weight: 700;
 }
 
-.booking-actions .secondary {
-  background: var(--brand);
+.booking-form input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fffaf3;
 }
 
-.booking-actions .danger {
-  background: var(--danger);
+#reserve-button {
+  background: var(--brand);
+  color: white;
+  font-weight: 800;
+}
+
+.status-copy.success,
+.feedback.success {
+  color: var(--success);
+}
+
+.status-copy.error,
+.feedback.error {
+  color: var(--danger);
 }
 
 .legend {
@@ -359,8 +370,7 @@ button {
   }
 
   .panel-header,
-  .legend,
-  .booking-actions {
+  .legend {
     flex-direction: column;
     align-items: stretch;
   }
